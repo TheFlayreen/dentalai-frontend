@@ -71,7 +71,7 @@ export function useAuth() {
         throw new Error('Forgot password failed');
     }
 
-    const resetPassword = async (credentials: { newPassword: string, token: string }) => {
+    const resetPassword = async (credentials: { email: string, newPassword: string }) => {
         const response = await fetch('/api/auth/reset-password', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},

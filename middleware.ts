@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const getBaseUrl: string = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
-const publicPaths: string[] = ['/login', '/register', '/verify-email', '/reset-password'];
+const publicPaths: string[] = ['/login', '/register', '/reset-password'];
 const adminPaths: string[] = ['/scenarios', '/users'];
 const traineePaths: string[] = ['/trainer', '/analytics', '/history'];
 const authApiPaths: string[] = [

@@ -12,6 +12,8 @@ export async function POST(req: Request) {
         credentials: 'include'
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
         return NextResponse.json(
             { error: 'Invalid credentials' },
@@ -25,7 +27,13 @@ export async function POST(req: Request) {
         success: true
     });
 
-    res.cookies.set('verifyEmailRequested', 'true');
+    res.cookies.set('accessToken', data.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        // maxAge: 120 * 60,
+        path: '/'
+    });
 
     if (backendCookies.length > 0) {
         backendCookies.forEach(cookie => {

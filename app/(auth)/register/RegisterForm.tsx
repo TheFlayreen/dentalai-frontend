@@ -12,7 +12,7 @@ import {useRouter} from "next/navigation";
 import {ROUTES} from "@/constants/routes";
 import {useState} from "react";
 import {useAuth} from "@/hooks/use-auth";
-import {EyeIcon, EyeOffIcon} from "lucide-react";
+import {EyeIcon, EyeOffIcon, Loader2} from "lucide-react";
 import {toast} from "sonner";
 
 const registerSchema = z.object({
@@ -35,7 +35,6 @@ const registerSchema = z.object({
 export default function RegisterForm() {
     const router = useRouter();
     const { register } = useAuth();
-    const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -52,12 +51,11 @@ export default function RegisterForm() {
     })
 
     async function onSubmit(data: z.infer<typeof registerSchema>) {
-        setError(null);
         setIsLoading(true);
 
         try {
             await register(data);
-            router.push(ROUTES.VERIFY_EMAIL);
+            router.push("/");
         } catch (error) {
             console.error("Registration error", error);
             toast.error("User already exist with this email.");
@@ -184,7 +182,7 @@ export default function RegisterForm() {
                             type="submit"
                             form="login-form"
                         >
-                            {isLoading ? 'Creating account...' : 'Create account'}
+                            {isLoading ? <Loader2 className="animate-spin"/> : 'Create account'}
                         </Button>
                     </FieldGroup>
                 </form>
