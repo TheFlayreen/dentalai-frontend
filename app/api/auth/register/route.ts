@@ -8,7 +8,8 @@ export async function POST(req: Request) {
     const response = await fetch(`${BACKEND_URL}/auth/register`, {
         method: 'POST',
         body: JSON.stringify(credentials),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
     });
 
     if (!response.ok) {

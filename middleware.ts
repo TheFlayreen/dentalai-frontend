@@ -71,6 +71,16 @@ export async function middleware(request: NextRequest) {
                         response.headers.set('Authorization', `Bearer ${newAccessToken}`);
 
                         return response;
+                    } else {
+                        const response = NextResponse.next();
+                        response.cookies.delete("accessToken")
+                        response.cookies.delete("refreshToken")
+
+                        response.headers.delete('x-access-token')
+                        response.headers.delete('Authorization');
+                        response.headers.delete('accessToken');
+                        response.headers.delete('refreshToken');
+                        return response;
                     }
                 } catch (e) {
                     console.error('Refresh failed', e);

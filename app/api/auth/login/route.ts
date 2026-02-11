@@ -11,14 +11,14 @@ export async function POST(req: Request) {
         headers: { 'Content-Type': 'application/json' }
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
         return NextResponse.json(
-            { error: 'Invalid credentials' },
+            { error: data.message },
             { status: response.status }
         );
     }
-
-    const data = await response.json();
 
     const backendCookies: string[] = response.headers.getSetCookie();
 

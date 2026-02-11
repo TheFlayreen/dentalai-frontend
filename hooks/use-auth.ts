@@ -10,15 +10,17 @@ export function useAuth() {
     };
 
     const login = async (credentials: { email: string; password: string }) => {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(credentials),
-            credentials: 'include',
-        });
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(credentials),
+                credentials: 'include',
+            });
 
-        if (response.ok) {
             return await response.json();
+        } catch (e) {
+            console.log("error", e);
         }
 
         throw new Error('Login failed');

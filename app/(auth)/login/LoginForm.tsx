@@ -13,6 +13,7 @@ import {ROUTES} from "@/constants/routes";
 import {useState} from "react";
 import {useAuth} from "@/hooks/use-auth";
 import {EyeIcon, EyeOffIcon} from "lucide-react";
+import {toast} from "sonner";
 
 const loginSchema = z.object({
     email: z
@@ -26,7 +27,6 @@ const loginSchema = z.object({
 export default function LoginForm() {
     const router = useRouter();
     const {login} = useAuth();
-    const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -41,16 +41,17 @@ export default function LoginForm() {
     })
 
     async function onSubmit(data: z.infer<typeof loginSchema>) {
-        setError(null);
         setIsLoading(true);
 
         try {
-            await login(data);
+            const message = await login(data);
+
+            if (message.error) {
+                toast.error(message.error);
+            }
             router.push(ROUTES.HOME);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Login failed';
-            setError(errorMessage);
-            console.error("Login error", error);
+            console.log("error", error);
         } finally {
             setIsLoading(false);
         }
@@ -125,12 +126,6 @@ export default function LoginForm() {
                                 </Field>
                             )}
                         />
-
-                        {error && (
-                            <div className="text-sm text-red-600 dark:text-red-400 text-center">
-                                {error}
-                            </div>
-                        )}
                     </FieldGroup>
                     <div className="w-full flex flex-col gap-2 mt-2">
                         <div className="w-full flex justify-end gap-4">

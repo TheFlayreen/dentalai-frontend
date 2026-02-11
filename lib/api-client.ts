@@ -37,7 +37,6 @@ export type RequestConfig = Omit<RequestInit, 'headers'> & {
 //
 //     if (!res.ok) return null;
 //     const data = await res.json();
-//     console.log("daaaaaaata", data)
 //     return data.accessToken ?? null;
 // }
 
@@ -50,7 +49,7 @@ async function request<T = unknown>(
     const url = path.startsWith('http') ? path : `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
 
     const accessToken: string | undefined = await getAccessToken();
-    console.log(`Access token: ${accessToken}`);
+
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         ...config.headers,
