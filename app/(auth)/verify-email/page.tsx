@@ -1,6 +1,8 @@
-import {VerifyEmailSection} from "@/app/(auth)/verify-email/VerifyEmail";
-import {cookies} from "next/headers";
-import {redirect} from "next/navigation";
+import { Suspense } from "react";
+import { VerifyEmailSection } from "@/app/(auth)/verify-email/VerifyEmail";
+import { PageLoader } from "@/components/ui/page-loader";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function VerifyEmail() {
     const cookieStore = await cookies();
@@ -11,6 +13,8 @@ export default async function VerifyEmail() {
     }
 
     return (
-        <VerifyEmailSection/>
-    )
+        <Suspense fallback={<PageLoader />}>
+            <VerifyEmailSection />
+        </Suspense>
+    );
 }
