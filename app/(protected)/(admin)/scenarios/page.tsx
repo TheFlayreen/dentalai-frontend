@@ -1,7 +1,5 @@
+import ScenariosList from '@/components/pages/scenarios/scenarios-list';
+
 export default function ScenariosPage() {
-    return (
-        <div>
-            Scenarios
-        </div>
-    )
+  return <ScenariosList />;
 }

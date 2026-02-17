@@ -1,5 +1,3 @@
 export default function AnalyticsPage() {
-    return (
-        <div>Analytics</div>
-    )
+  return <div>Analytics</div>;
 }
