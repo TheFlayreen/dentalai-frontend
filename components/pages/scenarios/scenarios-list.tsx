@@ -34,6 +34,7 @@ import {
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 function getCountForTab(tabCode: string, counts: IScenarioCounts) {
   switch (tabCode) {
@@ -103,7 +104,7 @@ export default function ScenariosList() {
               {item.status === ScenarioStatus.DRAFT || item.status === ScenarioStatus.ARCHIVED ? (
                 <DropdownMenuItem
                   className="h-8"
-                  onClick={() => changeScenarioStatus(item.id, ScenarioStatus.PUBLISHED)}
+                  onClick={() => changeStatus(item.id, ScenarioStatus.PUBLISHED)}
                 >
                   <ArrowUpFromLine />
                   Publish
@@ -113,7 +114,7 @@ export default function ScenariosList() {
               item.status === ScenarioStatus.ARCHIVED ? (
                 <DropdownMenuItem
                   className="h-8"
-                  onClick={() => changeScenarioStatus(item.id, ScenarioStatus.DRAFT)}
+                  onClick={() => changeStatus(item.id, ScenarioStatus.DRAFT)}
                 >
                   <BookDashedIcon />
                   Draft
@@ -122,7 +123,7 @@ export default function ScenariosList() {
               {item.status === ScenarioStatus.PUBLISHED || item.status === ScenarioStatus.DRAFT ? (
                 <DropdownMenuItem
                   className="h-8"
-                  onClick={() => changeScenarioStatus(item.id, ScenarioStatus.ARCHIVED)}
+                  onClick={() => changeStatus(item.id, ScenarioStatus.ARCHIVED)}
                 >
                   <Archive />
                   Archive
@@ -135,6 +136,11 @@ export default function ScenariosList() {
     [items],
   );
 
+  const changeStatus = async (id: string, status: ScenarioStatus) => {
+    await changeScenarioStatus(id, status);
+    toast.success('Scenario status changed successfully');
+  }
+
   const columns = useMemo<
     ColumnDef<{
       title: string;
@@ -146,10 +152,14 @@ export default function ScenariosList() {
     }>[]
   >(
     () => [
-      { accessorKey: 'title', header: 'Title', meta: { width: 'w-full', align: 'left' } },
+      {
+        accessorKey: 'title',
+        header: 'Title',
+        meta: { width: 'w-full', align: 'left', className: 'min-w-[200px]' },
+      },
       { accessorKey: 'status', header: 'Status', meta: { width: '130px', align: 'center' } },
       { accessorKey: 'version', header: 'Version', meta: { width: '80px', align: 'center' } },
-      { accessorKey: 'created', header: 'Created', meta: { width: '150px', align: 'right' } },
+      { accessorKey: 'created', header: 'Created', meta: { width: '150px', align: 'center' } },
       {
         id: 'actions',
         header: 'Actions',
@@ -161,11 +171,15 @@ export default function ScenariosList() {
   );
 
   useEffect(() => {
-    fetchCounts();
+    (async () => {
+      await fetchCounts();
+    })();
   }, []);
 
   useEffect(() => {
-    fetchScenarios(activeTab === 'ALL' ? undefined : (activeTab as ScenarioStatus));
+    (async () => {
+      await fetchScenarios(activeTab === 'ALL' ? undefined : (activeTab as ScenarioStatus));
+    })();
   }, [activeTab]);
 
   const handlePagination = async (page: number) => {
@@ -176,7 +190,10 @@ export default function ScenariosList() {
     <div className="w-full">
       <Tabs defaultValue={activeTab} value={activeTab}>
         <div className="flex flex-col-reverse gap-2 md:flex-row md:justify-between md:items-center">
-          <TabsList variant="line">
+          <TabsList
+            variant="line"
+            className="overflow-x-scroll flex justify-start w-full md:w-fit no-scrollbar"
+          >
             {tabs.map(({ label, code }) => (
               <TabsTrigger
                 onClick={() => setActiveTab(code)}
@@ -194,9 +211,7 @@ export default function ScenariosList() {
             ))}
           </TabsList>
           <Link href="/scenarios/create">
-            <Button
-              className="w-full md:w-fit"
-            >
+            <Button className="w-full md:w-fit">
               <PlusIcon />
               Create Scenario
             </Button>
@@ -204,7 +219,13 @@ export default function ScenariosList() {
         </div>
         <TabsContent value={activeTab}>
           <div className="space-y-4 md:hidden">
-            {formatedItems.length === 0 ? (
+            {isLoadingScenarios ? (
+              <div className="w-full flex justify-center items-center h-[300px]">
+                <span className="text-muted-foreground">
+                  Loading...
+                </span>
+              </div>
+            ) : formatedItems.length === 0 ? (
               <p className="text-muted-foreground py-8 text-center text-sm">No data</p>
             ) : (
               <>

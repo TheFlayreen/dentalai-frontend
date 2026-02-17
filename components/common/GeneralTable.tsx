@@ -87,7 +87,7 @@ export function DataTable<T>({
   return (
     <div className="w-full space-y-4">
       <div className="rounded-md border">
-        <Table>
+        <Table className="overflow-x-scroll">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -155,7 +155,9 @@ export function DataTable<T>({
                 ) : (
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => {
-                      const cellMeta = cell.column.columnDef.meta as DataTableColumnMeta | undefined;
+                      const cellMeta = cell.column.columnDef.meta as
+                        | DataTableColumnMeta
+                        | undefined;
                       return (
                         <TableCell
                           key={cell.id}

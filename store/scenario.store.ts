@@ -9,7 +9,7 @@ interface ScenarioStore {
   counts: {
     data: IScenarioCounts;
     isLoading: boolean;
-    fetchCounts: () => void;
+    fetchCounts: () => Promise<void>;
   };
   scenarios: {
     items: IScenario[];

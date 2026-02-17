@@ -4,39 +4,59 @@ export type RequestConfig = Omit<RequestInit, 'headers'> & {
   headers?: Record<string, string>;
 };
 
-function getAppUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003';
-}
-
 async function request<T>(path: string, config: RequestConfig = {}): Promise<T> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl: string = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
   const url = path.startsWith('http')
     ? path
     : `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
 
-  const accessToken: string | undefined = Cookies.get('accessToken');
+  const makeRequest = async (token?: string) => {
+    return fetch(url, {
+      ...config,
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+        ...config.headers,
+      },
+      credentials: 'include',
+    });
+  };
 
-  const response = await fetch(url, {
-    ...config,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-      ...config.headers,
-    },
-    credentials: 'include',
-  });
+  let accessToken = Cookies.get('accessToken');
+  console.log('accessToken: ', accessToken);
+  let response = await makeRequest(accessToken);
 
   if (response.status === 401) {
-    await fetch(`${getAppUrl()}/auth/logout`, {
+    const refreshResponse = await fetch(`${baseUrl}/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
     });
-    window.location.href = '/login';
+
+    if (!refreshResponse.ok) {
+      await fetch(`${baseUrl}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
+
+      window.location.href = '/login';
+      throw new Error('Session expired');
+    }
+
+    const { accessToken: newAccessToken } = await refreshResponse.json();
+    console.log('newAccessToken: ', newAccessToken);
+
+    Cookies.set('accessToken', newAccessToken);
+
+    response = await makeRequest(newAccessToken);
   }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: response.statusText }));
+
     throw new Error(error.message ?? `HTTP ${response.status}`);
   }
 

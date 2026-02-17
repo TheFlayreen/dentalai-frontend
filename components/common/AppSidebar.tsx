@@ -36,7 +36,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/use-auth';
 import { IUser } from '@/types/user.type';
 import { usePathname } from 'next/navigation';
-import { apiServer } from '@/lib/api-server';
 
 const items = {
   TRAINEE: [

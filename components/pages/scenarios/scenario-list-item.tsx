@@ -21,7 +21,6 @@ export default function ScenarioListItem({
   actions,
   variant = 'table',
 }: ScenarioListItemProps) {
-  console.log('difficultyLabels: ', difficulty);
   if (variant === 'card') {
     return (
       <Card className="py-4">
@@ -59,7 +58,7 @@ export default function ScenarioListItem({
       </TableCell>
       <TableCell align="center">{status}</TableCell>
       <TableCell align="center">{version}</TableCell>
-      <TableCell align="right">{created}</TableCell>
+      <TableCell align="center">{created}</TableCell>
       <TableCell align="center">{actions}</TableCell>
     </>
   );
