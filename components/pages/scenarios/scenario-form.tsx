@@ -36,6 +36,7 @@ import { useScenarioStore } from '@/store/scenario.store';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { IScenario } from '@/types/scenario/scenario.type';
+import FileUploadButton from '@/components/ui/file-upload-button';
 
 const SCORING_FIELDS = [
   'warmthTone',
@@ -186,7 +187,7 @@ interface IScenarioForm {
 export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
   const router = useRouter();
   const { categories, isLoading: isLoadingCategories, fetchCategories } = useCategoriesStore();
-  const { createScenario, updateScenario, isLoading } = useScenarioStore(
+  const { createScenario, updateScenario, parseScenarioFile, isLoading } = useScenarioStore(
     (state) => state.scenarios,
   );
 
@@ -246,6 +247,48 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
     }
   }
 
+  const uploadDocument = async (file: File) => {
+    try {
+      const parsedFile = await parseScenarioFile(file);
+      console.log("parsedFile", parsedFile);
+      if (typeof parsedFile === 'string') {
+        toast.error(parsedFile);
+        return;
+      }
+
+      form.reset({
+        title: parsedFile.title ?? form.getValues('title'),
+        description: parsedFile.description ?? form.getValues('description'),
+        categoryId: form.getValues('categoryId'),
+        difficulty: parsedFile.difficulty ?? form.getValues('difficulty'),
+        callerType: parsedFile.callerType ?? form.getValues('callerType'),
+        tone: parsedFile.tone ?? form.getValues('tone'),
+        urgency: parsedFile.urgency ?? form.getValues('urgency'),
+        backstory: parsedFile.backstory ?? form.getValues('backstory'),
+        goals: parsedFile.goals ?? form.getValues('goals'),
+        objections: parsedFile.objections ?? form.getValues('objections'),
+        expectedBehaviorsChecklist: parsedFile.expectedBehaviorsChecklist ?? form.getValues('expectedBehaviorsChecklist'),
+        requiredPhrases: parsedFile.requiredPhrases ?? form.getValues('requiredPhrases'),
+        forbiddenPhrases: parsedFile.forbiddenPhrases ?? form.getValues('forbiddenPhrases'),
+        mustAskQuestions: parsedFile.mustAskQuestions ?? form.getValues('mustAskQuestions'),
+        complianceRules: parsedFile.complianceRules ?? form.getValues('complianceRules'),
+        warmthTone: parsedFile.warmthTone ?? form.getValues('warmthTone'),
+        rapportName: parsedFile.rapportName ?? form.getValues('rapportName'),
+        timingDiscipline: parsedFile.timingDiscipline ?? form.getValues('timingDiscipline'),
+        accuracyCompliance: parsedFile.accuracyCompliance ?? form.getValues('accuracyCompliance'),
+        objectionHandling: parsedFile.objectionHandling ?? form.getValues('objectionHandling'),
+        closeConfirmation: parsedFile.closeConfirmation ?? form.getValues('closeConfirmation'),
+        controlForward: parsedFile.controlForward ?? form.getValues('controlForward'),
+        adminFeedback: parsedFile.adminFeedback ?? form.getValues('adminFeedback'),
+      })
+
+      toast.success('Document uploaded successfully.');
+    } catch (e) {
+      console.log(e);
+      toast.error('Failed to upload document.');
+    }
+  }
+
   useEffect(() => {
     if (categories.length === 0) {
       (async () => {
@@ -256,6 +299,9 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
 
   return (
     <form id="scenario-form" className="w-full" autoComplete="off">
+      <div className="w-full flex justify-end mb-2">
+        <FileUploadButton onFileSelect={uploadDocument} />
+      </div>
       <Accordion
         type="multiple"
         className="w-full flex flex-col gap-6"
