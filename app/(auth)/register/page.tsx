@@ -1,8 +1,5 @@
-import RegisterForm from "@/app/(auth)/register/RegisterForm";
+import RegisterForm from '@/app/(auth)/register/RegisterForm';
 
 export default function Register() {
-
-    return (
-        <RegisterForm/>
-    )
+  return <RegisterForm />;
 }
