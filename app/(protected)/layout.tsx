@@ -1,5 +1,5 @@
-import ProtectedLayoutClient from '@/components/layout/ProtectedLayoutClient';
+import ProtectedLayout from '@/components/layout/protected-layout';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <ProtectedLayoutClient>{children}</ProtectedLayoutClient>;
+  return <ProtectedLayout>{children}</ProtectedLayout>;
 }

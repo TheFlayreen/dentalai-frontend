@@ -5,9 +5,9 @@ export enum ScenarioStatus {
 }
 
 export enum ScenarioDifficulty {
-  BEGINNER = 'BEGINNER',
-  INTERMEDIATE = 'INTERMEDIATE',
-  ADVANCED = 'ADVANCED',
+  Beginner = 'Beginner',
+  Intermediate = 'Intermediate',
+  Advanced = 'Advanced',
 }
 
 export enum ScenarioTone {

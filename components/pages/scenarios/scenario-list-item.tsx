@@ -1,8 +1,10 @@
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TableCell } from '@/components/ui/table';
 import { ScenarioDifficulty } from '@/types/scenario/scenario.enum';
+import { cn } from '@/lib/utils';
 
 export interface ScenarioListItemProps {
+  className?: string;
   title: string;
   difficulty: ScenarioDifficulty;
   status: string;
@@ -13,6 +15,7 @@ export interface ScenarioListItemProps {
 }
 
 export default function ScenarioListItem({
+  className,
   title,
   difficulty,
   status,
@@ -23,7 +26,7 @@ export default function ScenarioListItem({
 }: ScenarioListItemProps) {
   if (variant === 'card') {
     return (
-      <Card className="py-4">
+      <Card className={cn('py-4', className)}>
         <CardHeader className="gap-1 px-4 pb-2">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-base">{title}</CardTitle>

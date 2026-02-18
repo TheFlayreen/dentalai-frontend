@@ -2,8 +2,39 @@ import { create } from 'zustand/react';
 import { IScenarioCounts } from '@/types/scenario/scenario-counts.type';
 import { apiClient } from '@/lib/api-client';
 import { IScenario, IScenariosWithPagination } from '@/types/scenario/scenario.type';
-import { ScenarioStatus } from '@/types/scenario/scenario.enum';
+import {
+  ScenarioCallerType,
+  ScenarioDifficulty,
+  ScenarioStatus,
+  ScenarioTone,
+} from '@/types/scenario/scenario.enum';
 import { IPagination } from '@/types/pagination.type';
+
+interface CreateScenarioPayload {
+  title: string;
+  description: string;
+  categoryId: string;
+  difficulty: ScenarioDifficulty;
+  callerType: ScenarioCallerType;
+  tone: ScenarioTone;
+  urgency: number;
+  backstory: string;
+  goals: string[];
+  objections: string[];
+  requiredPhrases: string[];
+  forbiddenPhrases: string[];
+  mustAskQuestions: string[];
+  complianceRules: string[];
+  expectedBehaviorsChecklist: string[];
+  warmthTone?: number;
+  rapportName?: number;
+  timingDiscipline?: number;
+  accuracyCompliance?: number;
+  objectionHandling?: number;
+  closeConfirmation?: number;
+  controlForward?: number;
+  adminFeedback?: string;
+}
 
 interface ScenarioStore {
   counts: {
@@ -21,6 +52,15 @@ interface ScenarioStore {
       limit?: number,
     ) => Promise<void>;
     changeScenarioStatus: (scenarioId: string, status: ScenarioStatus) => Promise<void>;
+    createScenario: (
+      dto: CreateScenarioPayload,
+      status: ScenarioStatus,
+    ) => Promise<IScenario | null>;
+    updateScenario: (
+      scenarioId: string,
+      dto: Partial<CreateScenarioPayload>,
+      status: ScenarioStatus,
+    ) => Promise<IScenario | null>;
   };
 }
 
@@ -50,8 +90,8 @@ export const useScenarioStore = create<ScenarioStore>((set, get) => ({
     isLoading: false,
     fetchScenarios: async (
       status?: ScenarioStatus,
-      page: number = 1,
-      limit: number = 10,
+      page: number = get().scenarios.pagination.page,
+      limit: number = get().scenarios.pagination.limit,
     ): Promise<void> => {
       set((state) => ({ scenarios: { ...state.scenarios, isLoading: true } }));
       try {
@@ -105,6 +145,53 @@ export const useScenarioStore = create<ScenarioStore>((set, get) => ({
         }
       } catch (e) {
         console.log(e);
+      } finally {
+        set((state) => ({ scenarios: { ...state.scenarios, isLoading: false } }));
+      }
+    },
+    createScenario: async (
+      dto: CreateScenarioPayload,
+      status: ScenarioStatus,
+    ): Promise<IScenario | null> => {
+      set((state) => ({ scenarios: { ...state.scenarios, isLoading: true } }));
+      try {
+        const response: IScenario = await apiClient.post('/scenarios/create', { ...dto, status });
+        set((state) => ({
+          scenarios: {
+            ...state.scenarios,
+            items: [...state.scenarios.items, response],
+          },
+        }));
+
+        return response;
+      } catch (e) {
+        console.log(e);
+        return null;
+      } finally {
+        set((state) => ({ scenarios: { ...state.scenarios, isLoading: false } }));
+      }
+    },
+    updateScenario: async (
+      scenarioId: string,
+      dto: Partial<CreateScenarioPayload>,
+      status: ScenarioStatus,
+    ): Promise<IScenario | null> => {
+      set((state) => ({ scenarios: { ...state.scenarios, isLoading: true } }));
+      try {
+        const response: IScenario = await apiClient.patch(`/scenarios/${scenarioId}`, { ...dto, status });
+        set((state) => ({
+          scenarios: {
+            ...state.scenarios,
+            items: state.scenarios.items.map((scenario: IScenario) =>
+              scenario.id === scenarioId ? response : scenario,
+            ),
+          },
+        }));
+
+        return response;
+      } catch (e) {
+        console.log(e);
+        return null;
       } finally {
         set((state) => ({ scenarios: { ...state.scenarios, isLoading: false } }));
       }

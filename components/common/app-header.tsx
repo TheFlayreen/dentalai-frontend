@@ -20,6 +20,14 @@ const metadata = {
     title: 'Scenarios',
     description: 'Create, edit and publish scenarios.',
   },
+  '/scenarios/create': {
+    title: 'Create Scenario',
+    description: 'Create a new scenario to train your trainees.',
+  },
+  '/scenarios/edit': {
+    title: 'Edit Scenario',
+    description: 'Edit an existing scenario.',
+  },
   '/users': {
     title: 'Team Activity',
     description: 'Monitor training activity across your team.',
@@ -34,7 +42,9 @@ export default function AppHeader() {
   const pathname: string = usePathname();
 
   const pageMeta =
-    Object.entries(metadata).find(([key]) => key !== '/default' && pathname.startsWith(key))?.[1] ??
+    Object.entries(metadata)
+      .filter(([key]) => key !== '/default' && pathname.startsWith(key))
+      .sort((a, b) => b[0].length - a[0].length)[0]?.[1] ??
     metadata['/default'];
 
   const { title, description } = pageMeta;

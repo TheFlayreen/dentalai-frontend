@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScenarioDifficulty, ScenarioStatus } from '@/types/scenario/scenario.enum';
 import ScenarioListItem from '@/components/pages/scenarios/scenario-list-item';
 import { ColumnDef } from '@tanstack/react-table';
-import { DataTable } from '@/components/common/GeneralTable';
+import { DataTable } from '@/components/common/general-table';
 import { Button } from '@/components/ui/button';
 import {
   Archive,
@@ -35,6 +35,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 function getCountForTab(tabCode: string, counts: IScenarioCounts) {
   switch (tabCode) {
@@ -71,6 +72,7 @@ const tabs = [
 ];
 
 export default function ScenariosList() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>('ALL');
   const { data, isLoading, fetchCounts } = useScenarioStore((state) => state.counts);
   const {
@@ -88,7 +90,7 @@ export default function ScenariosList() {
         difficulty: item.currentVersion.difficulty,
         status: item.status,
         version: item.currentVersion.version,
-        created: format(item.currentVersion.createdAt, 'yyyy-MM-dd HH:mm:ss'),
+        created: format(item.currentVersion.createdAt, 'EEE MMM dd yyyy'),
         actions: (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -97,7 +99,7 @@ export default function ScenariosList() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="bottom" align="end">
-              <DropdownMenuItem className="h-8">
+              <DropdownMenuItem className="h-8" onClick={() => router.push(`/scenarios/edit/${item.id}`)}>
                 <Edit3Icon />
                 Edit
               </DropdownMenuItem>
@@ -279,6 +281,7 @@ export default function ScenariosList() {
           </div>
           <div className="hidden md:block">
             <DataTable
+              className="h-[600px] min-w-[600px]"
               data={formatedItems}
               columns={columns}
               pagination={pagination}

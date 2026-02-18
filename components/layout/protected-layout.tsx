@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import AppHeader from '@/components/common/AppHeader';
-import AppSidebar from '@/components/common/AppSidebar';
+import AppHeader from '@/components/common/app-header';
+import AppSidebar from '@/components/common/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { apiClient } from '@/lib/api-client';
 import { IUser } from '@/types/user.type';
 
-export default function ProtectedLayoutClient({ children }: { children: React.ReactNode }) {
+export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
