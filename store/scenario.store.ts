@@ -2,15 +2,9 @@ import { create } from 'zustand/react';
 import { IScenarioCounts } from '@/types/scenario/scenario-counts.type';
 import { apiClient } from '@/lib/api-client';
 import { IScenario, IScenariosWithPagination } from '@/types/scenario/scenario.type';
-import {
-  ScenarioCallerType,
-  ScenarioDifficulty,
-  ScenarioStatus,
-  ScenarioTone,
-} from '@/types/scenario/scenario.enum';
+import { ScenarioStatus } from '@/types/scenario/scenario.enum';
 import { IPagination } from '@/types/pagination.type';
 import Cookies from 'js-cookie';
-
 
 const SERVER_URL: string = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
@@ -18,9 +12,9 @@ interface CreateScenarioPayload {
   title: string;
   description: string;
   categoryId: string;
-  difficulty: ScenarioDifficulty;
-  callerType: ScenarioCallerType;
-  tone: ScenarioTone;
+  difficultyId: string;
+  callerTypeId: string;
+  toneId: string;
   urgency: number;
   backstory: string;
   goals: string[];
@@ -183,7 +177,10 @@ export const useScenarioStore = create<ScenarioStore>((set, get) => ({
     ): Promise<IScenario | null> => {
       set((state) => ({ scenarios: { ...state.scenarios, isLoading: true } }));
       try {
-        const response: IScenario = await apiClient.patch(`/scenarios/${scenarioId}`, { ...dto, status });
+        const response: IScenario = await apiClient.patch(`/scenarios/${scenarioId}`, {
+          ...dto,
+          status,
+        });
         set((state) => ({
           scenarios: {
             ...state.scenarios,
@@ -210,12 +207,12 @@ export const useScenarioStore = create<ScenarioStore>((set, get) => ({
         formData.append('file', file);
 
         const response = await fetch(`${SERVER_URL}/scenarios/parse-file`, {
-          method: "POST",
+          method: 'POST',
           body: formData,
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-          credentials: "include",
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -228,10 +225,10 @@ export const useScenarioStore = create<ScenarioStore>((set, get) => ({
         return responseJson.data as CreateScenarioPayload;
       } catch (e) {
         console.log(e);
-        return "Something went wrong. Please try again later.";
+        return 'Something went wrong. Please try again later.';
       } finally {
         set((state) => ({ scenarios: { ...state.scenarios, isLoading: false } }));
       }
-    }
+    },
   },
 }));

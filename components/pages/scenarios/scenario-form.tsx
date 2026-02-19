@@ -3,12 +3,7 @@
 import { z } from 'zod';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  ScenarioCallerType,
-  ScenarioDifficulty,
-  ScenarioStatus,
-  ScenarioTone,
-} from '@/types/scenario/scenario.enum';
+import { ScenarioStatus } from '@/types/scenario/scenario.enum';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -37,6 +32,9 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { IScenario } from '@/types/scenario/scenario.type';
 import FileUploadButton from '@/components/ui/file-upload-button';
+import { useDifficultiesStore } from '@/store/diffuculties.store';
+import { useCallerTypesStore } from '@/store/caller-types.store';
+import { useTonesStore } from '@/store/tones.store';
 
 const SCORING_FIELDS = [
   'warmthTone',
@@ -48,55 +46,14 @@ const SCORING_FIELDS = [
   'controlForward',
 ] as const;
 
-const callerTypesMeta = [
-  {
-    code: ScenarioCallerType.NEW_PATIENT,
-    title: 'New Patient',
-  },
-  {
-    code: ScenarioCallerType.EXISTING_PATIENT,
-    title: 'Existing Patient',
-  },
-  {
-    code: ScenarioCallerType.PARENT,
-    title: 'Parent',
-  },
-  {
-    code: ScenarioCallerType.SPOUSE,
-    title: 'Spouse',
-  },
-  {
-    code: ScenarioCallerType.EMERGENCY,
-    title: 'Emergency Caller',
-  },
-  {
-    code: ScenarioCallerType.PRICE_SHOPPER,
-    title: 'Price Shopper',
-  },
-  {
-    code: ScenarioCallerType.INSURANCE_FOCUSED,
-    title: 'Insurance-Focused Caller',
-  },
-  {
-    code: ScenarioCallerType.UPSET_CALLER,
-    title: 'Upset / Frustrated Caller',
-  },
-];
-
 const scenarioSchema = z
   .object({
     title: z.string().nonempty('Title is required.'),
     description: z.string().nonempty('Description is required.'),
     categoryId: z.string().nonempty('Category ID is required.'),
-    difficulty: z.enum(ScenarioDifficulty, {
-      error: 'Difficulty is required.',
-    }),
-    callerType: z.enum(ScenarioCallerType, {
-      error: 'Caller type is required.',
-    }),
-    tone: z.enum(ScenarioTone, {
-      error: 'Tone is required.',
-    }),
+    difficultyId: z.string().nonempty('Difficulty ID is required.'),
+    callerTypeId: z.string().nonempty('Caller type ID is required.'),
+    toneId: z.string().nonempty('Tone ID is required.'),
     urgency: z
       .number()
       .min(1, 'Urgency must be greater than or equal to 1.')
@@ -187,6 +144,13 @@ interface IScenarioForm {
 export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
   const router = useRouter();
   const { categories, isLoading: isLoadingCategories, fetchCategories } = useCategoriesStore();
+  const {
+    difficulties,
+    isLoading: isLoadingDifficulties,
+    fetchDifficulties,
+  } = useDifficultiesStore();
+  const { callerTypes, isLoading: isLoadingCallerTypes, fetchCallerTypes } = useCallerTypesStore();
+  const { tones, isLoading: isLoadingTones, fetchTones } = useTonesStore();
   const { createScenario, updateScenario, parseScenarioFile, isLoading } = useScenarioStore(
     (state) => state.scenarios,
   );
@@ -197,9 +161,9 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
       title: scenario?.currentVersion.title ?? '',
       description: scenario?.currentVersion.description ?? '',
       categoryId: scenario?.currentVersion.categoryId ?? '',
-      difficulty: scenario?.currentVersion.difficulty ?? ScenarioDifficulty.Beginner,
-      callerType: scenario?.currentVersion.callerType ?? undefined,
-      tone: scenario?.currentVersion.tone ?? undefined,
+      difficultyId: scenario?.currentVersion.difficultyId ?? '',
+      callerTypeId: scenario?.currentVersion.callerTypeId ?? '',
+      toneId: scenario?.currentVersion.toneId ?? '',
       urgency: scenario?.currentVersion.urgency ?? 1,
       backstory: scenario?.currentVersion.backstory ?? '',
       goals: scenario?.currentVersion.goals ?? [],
@@ -236,10 +200,7 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
         return;
       }
 
-      toast.success(isCreate
-        ? 'Scenario created successfully.'
-        : 'Scenario updated successfully.')
-      ;
+      toast.success(isCreate ? 'Scenario created successfully.' : 'Scenario updated successfully.');
       router.push('/scenarios');
     } catch (e) {
       console.log(e);
@@ -250,7 +211,7 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
   const uploadDocument = async (file: File) => {
     try {
       const parsedFile = await parseScenarioFile(file);
-      console.log("parsedFile", parsedFile);
+      console.log('parsedFile', parsedFile);
       if (typeof parsedFile === 'string') {
         toast.error(parsedFile);
         return;
@@ -260,14 +221,15 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
         title: parsedFile.title ?? form.getValues('title'),
         description: parsedFile.description ?? form.getValues('description'),
         categoryId: form.getValues('categoryId'),
-        difficulty: parsedFile.difficulty ?? form.getValues('difficulty'),
-        callerType: parsedFile.callerType ?? form.getValues('callerType'),
-        tone: parsedFile.tone ?? form.getValues('tone'),
+        difficultyId: form.getValues('difficultyId'),
+        callerTypeId: form.getValues('callerTypeId'),
+        toneId: form.getValues('toneId'),
         urgency: parsedFile.urgency ?? form.getValues('urgency'),
         backstory: parsedFile.backstory ?? form.getValues('backstory'),
         goals: parsedFile.goals ?? form.getValues('goals'),
         objections: parsedFile.objections ?? form.getValues('objections'),
-        expectedBehaviorsChecklist: parsedFile.expectedBehaviorsChecklist ?? form.getValues('expectedBehaviorsChecklist'),
+        expectedBehaviorsChecklist:
+          parsedFile.expectedBehaviorsChecklist ?? form.getValues('expectedBehaviorsChecklist'),
         requiredPhrases: parsedFile.requiredPhrases ?? form.getValues('requiredPhrases'),
         forbiddenPhrases: parsedFile.forbiddenPhrases ?? form.getValues('forbiddenPhrases'),
         mustAskQuestions: parsedFile.mustAskQuestions ?? form.getValues('mustAskQuestions'),
@@ -280,19 +242,37 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
         closeConfirmation: parsedFile.closeConfirmation ?? form.getValues('closeConfirmation'),
         controlForward: parsedFile.controlForward ?? form.getValues('controlForward'),
         adminFeedback: parsedFile.adminFeedback ?? form.getValues('adminFeedback'),
-      })
+      });
 
       toast.success('Document uploaded successfully.');
     } catch (e) {
       console.log(e);
       toast.error('Failed to upload document.');
     }
-  }
+  };
 
   useEffect(() => {
     if (categories.length === 0) {
       (async () => {
         await fetchCategories();
+      })();
+    }
+
+    if (difficulties.length === 0) {
+      (async () => {
+        await fetchDifficulties();
+      })();
+    }
+
+    if (tones.length === 0) {
+      (async () => {
+        await fetchTones();
+      })();
+    }
+
+    if (callerTypes.length === 0) {
+      (async () => {
+        await fetchCallerTypes();
       })();
     }
   }, []);
@@ -396,7 +376,7 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
                   )}
                 />
                 <Controller
-                  name="difficulty"
+                  name="difficultyId"
                   disabled={isLoading}
                   control={form.control}
                   render={({ field, fieldState }) => (
@@ -408,15 +388,15 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
                         id="scenario-difficulty"
                         type="single"
                         variant="outline"
+                        disabled={isLoadingDifficulties}
                         spacing={2}
                         value={field.value}
-                        defaultValue={ScenarioDifficulty.Beginner}
                         onValueChange={field.onChange}
                       >
-                        {Object.values(ScenarioDifficulty).map((difficulty, i) => (
-                          <ToggleGroupItem key={i} value={difficulty}>
-                            {field.value === difficulty && <Check className="w-5 h-5" />}
-                            {difficulty}
+                        {difficulties.map((difficulty) => (
+                          <ToggleGroupItem key={difficulty.id} value={difficulty.id}>
+                            {field.value === difficulty.id && <Check className="w-5 h-5" />}
+                            {difficulty.title}
                           </ToggleGroupItem>
                         ))}
                       </ToggleGroup>
@@ -438,7 +418,7 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
           <AccordionContent className="p-4">
             <FieldGroup className="flex flex-col md:flex-row gap-4">
               <Controller
-                name="callerType"
+                name="callerTypeId"
                 disabled={isLoading}
                 control={form.control}
                 render={({ field, fieldState }) => (
@@ -446,13 +426,13 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
                     <FieldLabel htmlFor="scenario-caller-type">
                       Caller type <span className="text-red-500">*</span>
                     </FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select disabled={isLoadingCallerTypes} value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger id="scenario-caller-type">
                         <SelectValue placeholder="Select caller type" />
                       </SelectTrigger>
                       <SelectContent>
-                        {callerTypesMeta.map((callerType, i) => (
-                          <SelectItem key={i} value={callerType.code}>
+                        {callerTypes.map((callerType) => (
+                          <SelectItem key={callerType.id} value={callerType.id}>
                             {callerType.title}
                           </SelectItem>
                         ))}
@@ -463,7 +443,7 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
                 )}
               />
               <Controller
-                name="tone"
+                name="toneId"
                 disabled={isLoading}
                 control={form.control}
                 render={({ field, fieldState }) => (
@@ -471,14 +451,14 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
                     <FieldLabel htmlFor="scenario-tone">
                       Tone <span className="text-red-500">*</span>
                     </FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select disabled={isLoadingTones} value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger id="scenario-tone">
                         <SelectValue placeholder="Select tone" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.values(ScenarioTone).map((tone, i) => (
-                          <SelectItem key={i} value={tone}>
-                            {tone.charAt(0).toUpperCase() + tone.slice(1).toLowerCase()}
+                        {tones.map((tone) => (
+                          <SelectItem key={tone.id} value={tone.id}>
+                            {tone.title}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -709,7 +689,10 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
                 <div className="col-span-12 bg-red-50 border border-red-500 p-3">
                   <div className="flex flex-row items-center gap-2">
                     <CircleAlert className="text-red-500 h-5" />
-                    <FieldError className="font-medium" errors={[form.formState.errors.warmthTone]} />
+                    <FieldError
+                      className="font-medium"
+                      errors={[form.formState.errors.warmthTone]}
+                    />
                   </div>
                 </div>
               )}
