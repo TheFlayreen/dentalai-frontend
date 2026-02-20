@@ -1,12 +1,11 @@
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TableCell } from '@/components/ui/table';
-import { ScenarioDifficulty } from '@/types/scenario/scenario.enum';
 import { cn } from '@/lib/utils';
 
 export interface ScenarioListItemProps {
   className?: string;
   title: string;
-  difficulty: ScenarioDifficulty;
+  difficulty: string;
   status: string;
   version: number;
   created: string;

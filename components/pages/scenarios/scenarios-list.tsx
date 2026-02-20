@@ -5,7 +5,7 @@ import React, { JSX, useEffect, useMemo, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { IScenarioCounts } from '@/types/scenario/scenario-counts.type';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ScenarioDifficulty, ScenarioStatus } from '@/types/scenario/scenario.enum';
+import { ScenarioStatus } from '@/types/scenario/scenario.enum';
 import ScenarioListItem from '@/components/pages/scenarios/scenario-list-item';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/common/general-table';
@@ -87,7 +87,7 @@ export default function ScenariosList() {
     () =>
       items.map((item) => ({
         title: item.currentVersion.title,
-        difficulty: item.currentVersion.difficulty,
+        difficulty: item.currentVersion.difficulty.title,
         status: item.status,
         version: item.currentVersion.version,
         created: format(item.currentVersion.createdAt, 'EEE MMM dd yyyy'),
@@ -146,7 +146,7 @@ export default function ScenariosList() {
   const columns = useMemo<
     ColumnDef<{
       title: string;
-      difficulty: ScenarioDifficulty;
+      difficulty: string;
       status: ScenarioStatus;
       version: number;
       created: string;

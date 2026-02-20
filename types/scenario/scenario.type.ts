@@ -1,10 +1,9 @@
-import {
-  ScenarioCallerType,
-  ScenarioDifficulty,
-  ScenarioStatus,
-  ScenarioTone,
-} from '@/types/scenario/scenario.enum';
+import { ScenarioStatus } from '@/types/scenario/scenario.enum';
 import { IPagination } from '@/types/pagination.type';
+import { ICategory } from '@/types/categories/category.type';
+import { IDifficulty } from '@/types/difficulties/difficulty.type';
+import { ICallerType } from '@/types/caller-types/caller-type.type';
+import { ITone } from '@/types/tones/tone.type';
 
 export interface IScenario {
   id: string;
@@ -18,9 +17,13 @@ export interface IScenarioVersion {
   title: string;
   description: string;
   categoryId: string;
-  difficulty: ScenarioDifficulty;
-  callerType: ScenarioCallerType;
-  tone: ScenarioTone;
+  category: ICategory;
+  difficultyId: string;
+  difficulty: IDifficulty;
+  callerTypeId: string;
+  callerType: ICallerType;
+  toneId: string;
+  tone: ITone;
   urgency: number;
   backstory: string;
   goals: string[];
