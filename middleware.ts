@@ -56,8 +56,6 @@ export const config = {
 
 function checkIsExpired(expToken: number): boolean {
   try {
-    console.log('exp:', expToken);
-    console.log('now:', Math.floor(Date.now() / 1000));
     return expToken < Math.floor(Date.now() / 1000);
   } catch (e) {
     return true;

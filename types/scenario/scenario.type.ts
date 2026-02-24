@@ -11,6 +11,12 @@ export interface IScenario {
   currentVersion: IScenarioVersion;
 }
 
+export interface IUserScenario {
+  id: string;
+  status: ScenarioStatus;
+  currentVersion: IUserScenarioVersion;
+}
+
 export interface IScenarioVersion {
   id: string;
   version: number;
@@ -43,6 +49,12 @@ export interface IScenarioVersion {
   createdAt: string;
   updatedAt: string;
   adminFeedback: string;
+}
+
+export interface IUserScenarioVersion {
+  id: string;
+  title: string;
+  description: string;
 }
 
 export interface IScenariosWithPagination {
