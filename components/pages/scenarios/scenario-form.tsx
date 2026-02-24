@@ -211,7 +211,6 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
   const uploadDocument = async (file: File) => {
     try {
       const parsedFile = await parseScenarioFile(file);
-      console.log('parsedFile', parsedFile);
       if (typeof parsedFile === 'string') {
         toast.error(parsedFile);
         return;

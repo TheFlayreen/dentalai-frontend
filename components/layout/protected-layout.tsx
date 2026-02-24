@@ -52,13 +52,13 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className="min-h-screen">
       <AppSidebar user={user} />
       <SidebarInset className="w-0 px-4 pb-6">
         <AppHeader />
-        <main className="flex min-h-screen flex-col items-start justify-start mt-4">
+        <div className="flex-1 min-h-0 mt-4">
           {children}
-        </main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

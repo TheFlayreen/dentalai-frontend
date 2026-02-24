@@ -24,7 +24,6 @@ async function request<T>(path: string, config: RequestConfig = {}): Promise<T> 
   };
 
   let accessToken = Cookies.get('accessToken');
-  console.log('accessToken: ', accessToken);
   let response = await makeRequest(accessToken);
 
   if (response.status === 401) {
@@ -47,7 +46,6 @@ async function request<T>(path: string, config: RequestConfig = {}): Promise<T> 
     }
 
     const { accessToken: newAccessToken } = await refreshResponse.json();
-    console.log('newAccessToken: ', newAccessToken);
 
     Cookies.set('accessToken', newAccessToken);
 
