@@ -49,6 +49,7 @@ export interface IScenarioVersion {
   createdAt: string;
   updatedAt: string;
   adminFeedback: string;
+  referenceDictionary: string;
 }
 
 export interface IUserScenarioVersion {

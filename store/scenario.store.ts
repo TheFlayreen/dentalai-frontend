@@ -32,6 +32,7 @@ interface CreateScenarioPayload {
   closeConfirmation?: number;
   controlForward?: number;
   adminFeedback?: string;
+  referenceDictionary?: string;
 }
 
 interface ScenarioStore {
