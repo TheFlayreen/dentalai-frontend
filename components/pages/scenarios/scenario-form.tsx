@@ -104,6 +104,7 @@ const scenarioSchema = z
       .min(0)
       .max(100),
     adminFeedback: z.string().optional(),
+    referenceDictionary: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     const total =
@@ -181,6 +182,7 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
       closeConfirmation: scenario?.currentVersion.closeConfirmation ?? 10,
       controlForward: scenario?.currentVersion.controlForward ?? 20,
       adminFeedback: scenario?.currentVersion.adminFeedback ?? undefined,
+      referenceDictionary: scenario?.currentVersion.referenceDictionary ?? undefined,
     },
     mode: 'onSubmit',
     reValidateMode: 'onChange',
@@ -241,6 +243,7 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
         closeConfirmation: parsedFile.closeConfirmation ?? form.getValues('closeConfirmation'),
         controlForward: parsedFile.controlForward ?? form.getValues('controlForward'),
         adminFeedback: parsedFile.adminFeedback ?? form.getValues('adminFeedback'),
+        referenceDictionary: parsedFile.referenceDictionary ?? form.getValues('referenceDictionary'),
       });
 
       toast.success('Document uploaded successfully.');
@@ -932,6 +935,27 @@ export function ScenarioForm({ isCreate = true, scenario }: IScenarioForm) {
                     className="min-h-[100px]"
                     aria-invalid={fieldState.invalid}
                     placeholder="Enter personal feedback (optional)"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="referenceDictionary"
+              disabled={isLoading}
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid} className="gap-1 mt-4">
+                  <FieldLabel htmlFor="scenario-referenceDictionary">
+                    Reference Dictionary (optional)
+                  </FieldLabel>
+                  <Textarea
+                    {...field}
+                    id="scenario-referenceDictionary"
+                    className="min-h-[100px]"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Enter reference dictionary (optional)"
                     autoComplete="off"
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
