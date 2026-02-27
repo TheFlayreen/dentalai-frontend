@@ -62,89 +62,101 @@ export default function ScenarioSelection({
           </CardHeader>
           <CardContent className="p-3 !bg-white rounded-b-xl h-full overflow-y-scroll overflow-x-hidden">
             <div className="flex flex-col gap-4 h-full">
-              {items.map((item) => (
-                <ScenarioItem
-                  key={item.id}
-                  scenario={item}
-                  onSelect={handleSelectScenario}
-                  isSelected={scenario?.id === item.id}
-                />
-              ))}
-              {pagination.totalPages > 1 && (
-                <Pagination className="pb-3">
-                  <PaginationContent className="flex items-center gap-4">
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={
-                          pagination.page > 1
-                            ? () => handleFetchScenarios(pagination.page - 1)
-                            : () => {}
-                        }
-                        className={cn(pagination.page > 1 && 'cursor-pointer')}
-                        isActive={pagination.page > 1}
-                      />
-                    </PaginationItem>
-                    <span>
+              {items.length === 0 ? (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                  <span>
+                    No scenarios yet.
+                  </span>
+                </div>
+              ) : (
+                <>
+                  {items.map((item) => (
+                    <ScenarioItem
+                      key={item.id}
+                      scenario={item}
+                      onSelect={handleSelectScenario}
+                      isSelected={scenario?.id === item.id}
+                    />
+                  ))}
+                  {pagination.totalPages > 1 && (
+                    <Pagination className="pb-3">
+                      <PaginationContent className="flex items-center gap-4">
+                        <PaginationItem>
+                          <PaginationPrevious
+                            onClick={
+                              pagination.page > 1
+                                ? () => handleFetchScenarios(pagination.page - 1)
+                                : () => {}
+                            }
+                            className={cn(pagination.page > 1 && 'cursor-pointer')}
+                            isActive={pagination.page > 1}
+                          />
+                        </PaginationItem>
+                        <span>
                       {pagination.page} of {pagination.totalPages}
                     </span>
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() =>
-                          pagination.page < pagination.totalPages
-                            ? handleFetchScenarios(pagination.page + 1)
-                            : () => {}
-                        }
-                        className={cn(pagination.page < pagination.totalPages && 'cursor-pointer')}
-                        isActive={pagination.page < pagination.totalPages}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
+                        <PaginationItem>
+                          <PaginationNext
+                            onClick={() =>
+                              pagination.page < pagination.totalPages
+                                ? handleFetchScenarios(pagination.page + 1)
+                                : () => {}
+                            }
+                            className={cn(pagination.page < pagination.totalPages && 'cursor-pointer')}
+                            isActive={pagination.page < pagination.totalPages}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  )}
+                </>
               )}
             </div>
           </CardContent>
         </Card>
-        <Card className="hidden md:flex w-full p-0 gap-0 h-full overflow-hidden md:max-w-[400px]">
-          <CardHeader className="w-full !p-4 border-b border-border shrink-0">
-            <CardTitle className="w-full">Scenario Overview</CardTitle>
-          </CardHeader>
+        {items.length > 0 && (
+          <Card className="hidden md:flex w-full p-0 gap-0 h-full overflow-hidden md:max-w-[400px]">
+            <CardHeader className="w-full !p-4 border-b border-border shrink-0">
+              <CardTitle className="w-full">Scenario Overview</CardTitle>
+            </CardHeader>
 
-          <CardContent className="px-4 pt-6 !bg-white h-full overflow-scroll">
-            <div className="flex flex-col gap-4 h-full w-full">
-              <div className="flex flex-col gap-2">
-                <span className="text-xl font-semibold">{scenario?.currentVersion.title}</span>
-                <div className="flex flex-row gap-1 items-center">
-                  <span className="text-muted-foreground text-sm">Difficulty:</span>
-                  <Badge className="h-6" variant="default">
-                    {scenario?.currentVersion.difficulty.title}
-                  </Badge>
+            <CardContent className="px-4 pt-6 !bg-white h-full overflow-scroll">
+              <div className="flex flex-col gap-4 h-full w-full">
+                <div className="flex flex-col gap-2">
+                  <span className="text-xl font-semibold">{scenario?.currentVersion.title}</span>
+                  <div className="flex flex-row gap-1 items-center">
+                    <span className="text-muted-foreground text-sm">Difficulty:</span>
+                    <Badge className="h-6" variant="default">
+                      {scenario?.currentVersion.difficulty.title}
+                    </Badge>
+                  </div>
+                  <div className="flex flex-row gap-1 items-center">
+                    <span className="text-muted-foreground text-sm">Caller type:</span>
+                    <span className="text-sm">{scenario?.currentVersion.callerType.title}</span>
+                  </div>
+                  <div className="flex flex-row gap-1 items-center">
+                    <span className="text-muted-foreground text-sm">Category:</span>
+                    <span className="text-sm">{scenario?.currentVersion.category.title}</span>
+                  </div>
+                  <div className="flex flex-row gap-1 items-center">
+                    <span className="text-muted-foreground text-sm">Tone:</span>
+                    <span className="text-sm">{scenario?.currentVersion.tone.title}</span>
+                  </div>
                 </div>
-                <div className="flex flex-row gap-1 items-center">
-                  <span className="text-muted-foreground text-sm">Caller type:</span>
-                  <span className="text-sm">{scenario?.currentVersion.callerType.title}</span>
-                </div>
-                <div className="flex flex-row gap-1 items-center">
-                  <span className="text-muted-foreground text-sm">Category:</span>
-                  <span className="text-sm">{scenario?.currentVersion.category.title}</span>
-                </div>
-                <div className="flex flex-row gap-1 items-center">
-                  <span className="text-muted-foreground text-sm">Tone:</span>
-                  <span className="text-sm">{scenario?.currentVersion.tone.title}</span>
+                <div className="pt-5 pb-3 border-t border-border">
+                  <p className="text-sm whitespace-pre-wrap">
+                    {scenario?.currentVersion.description}
+                  </p>
                 </div>
               </div>
-              <div className="pt-5 pb-3 border-t border-border">
-                <p className="text-sm whitespace-pre-wrap">
-                  {scenario?.currentVersion.description}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="bg-white border-t border-border !py-3">
-            <Button className="w-full" onClick={() => setIsChatReady(true)}>
-              Start Simulation
-            </Button>
-          </CardFooter>
-        </Card>
+            </CardContent>
+            <CardFooter className="bg-white border-t border-border !py-3">
+              <Button className="w-full" onClick={() => setIsChatReady(true)}>
+                Start Simulation
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
       </div>
       {scenario && (
         <div className="md:hidden absolute bottom-0 w-full p-4 bg-white border-t border-border">
@@ -156,7 +168,7 @@ export default function ScenarioSelection({
     </div>
   ) : (
     <div className="flex justify-center items-center h-full w-full">
-      <LucideRefreshCw className="animate-spin size-8 text-muted-foreground"/>
+      <LucideRefreshCw className="animate-spin size-8 text-muted-foreground" />
     </div>
   );
 }
