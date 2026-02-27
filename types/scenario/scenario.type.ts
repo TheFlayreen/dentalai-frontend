@@ -56,6 +56,10 @@ export interface IUserScenarioVersion {
   id: string;
   title: string;
   description: string;
+  tone: ITone;
+  callerType: ICallerType;
+  difficulty: IDifficulty;
+  category: ICategory;
 }
 
 export interface IScenariosWithPagination {

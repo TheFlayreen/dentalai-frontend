@@ -7,7 +7,7 @@ interface UserScenarioStore {
   items: IUserScenario[];
   pagination: IPagination;
   isLoading: boolean;
-  fetchScenarios: (page?: number, limit?: number) => Promise<void>;
+  fetchScenarios: (page?: number, limit?: number) => Promise<IUserScenario[]>;
 }
 
 export const useUserScenarioStore = create<UserScenarioStore>((set, get) => ({
@@ -21,7 +21,7 @@ export const useUserScenarioStore = create<UserScenarioStore>((set, get) => ({
   fetchScenarios: async (
     page: number = get().pagination.page,
     limit: number = get().pagination.limit,
-  ): Promise<void> => {
+  ): Promise<IUserScenario[]> => {
     set({ isLoading: true });
     try {
       let query: string = `?page=${page}&limit=${limit}`;
@@ -31,8 +31,11 @@ export const useUserScenarioStore = create<UserScenarioStore>((set, get) => ({
         items: response.items,
         pagination: response.pagination,
       }));
+
+      return response.items;
     } catch (e) {
       console.log(e);
+      return [];
     } finally {
       set({ isLoading: false });
     }
