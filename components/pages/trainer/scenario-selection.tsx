@@ -1,7 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUserScenarioStore } from '@/store/user-scenario.store';
 import React, { useEffect, useState } from 'react';
@@ -13,12 +12,13 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { cn } from '@/lib/utils';
-import { Check, BookOpenText } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, LucideRefreshCw } from 'lucide-react';
 import { IUserScenario } from '@/types/scenario/scenario.type';
+import { Badge } from '@/components/ui/badge';
 
 interface ScenarioSelectionProps {
   scenario: IUserScenario | null;
-  setScenario: (scenario: IUserScenario) => void;
+  setScenario: (scenario: IUserScenario | null) => void;
   setIsChatReady: (isReady: boolean) => void;
 }
 
@@ -27,143 +27,225 @@ export default function ScenarioSelection({
   setScenario,
   setIsChatReady,
 }: ScenarioSelectionProps) {
-  const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
   const { items, isLoading, pagination, fetchScenarios } = useUserScenarioStore();
 
   function handleSelectScenario(scenario: IUserScenario) {
     setScenario(scenario);
-    setIsOpenDialog(false);
   }
+
+  const handleFetchScenarios = async (page?: number, limit?: number) => {
+    try {
+      const scenarios: IUserScenario[] = await fetchScenarios(page, limit);
+
+      if (scenarios.length === 0) {
+        setScenario(null);
+      } else {
+        setScenario(scenarios[0]);
+      }
+    } catch (error) {
+      console.log('error: ', error);
+    }
+  };
 
   useEffect(() => {
     (async () => {
-      await fetchScenarios();
+      await handleFetchScenarios();
     })();
   }, []);
 
-  return (
-    <div className="flex flex-col md:flex-row gap-4 w-full max-h-full h-full min-h-0 overflow-hidden">
-      <div className="flex flex-col gap-4 w-full flex-1 min-h-0 overflow-hidden">
-        <Card className="w-full p-0 gap-0 shrink-0">
+  return !isLoading ? (
+    <div className="flex flex-col md:flex-row gap-4 w-full max-h-full h-full relative">
+      <div className="flex flex-col md:flex-row gap-4 w-full min-h-0">
+        <Card className="w-full p-0 gap-0 h-full overflow-hidden">
           <CardHeader className="w-full !p-4 border-b border-border">
-            <CardTitle className="w-full">Choose a Scenario</CardTitle>
+            <CardTitle className="w-full">Choose Your Training Scenario</CardTitle>
           </CardHeader>
-          <CardContent className="py-6 !bg-white rounded-b-xl">
-            <div className="flex flex-col items-center gap-4">
-              <p className="text-center">
-                Let's start by choosing a simulation scenario to practice
-              </p>
-              <Dialog open={isOpenDialog} onOpenChange={setIsOpenDialog}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant={scenario ? 'outline' : 'default'}
-                    className="w-full md:w-[300px]"
-                  >
-                    {scenario ? 'Change scenario' : 'Select a scenario'}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogTitle>Choose a Training Scenario</DialogTitle>
-                  <div className="flex flex-col gap-3">
-                    {isLoading ? (
-                      <div className="w-full flex justify-center items-center h-[300px]">
-                        <span className="text-muted-foreground">Loading...</span>
-                      </div>
-                    ) : (
-                      items.map((item) => (
-                        <Button
-                          key={item.id}
-                          variant="outline"
-                          className="justify-between"
-                          onClick={() => handleSelectScenario(item)}
-                          disabled={scenario?.id === item.id}
-                        >
-                          {item.currentVersion.title}
-                          {item.id === scenario?.id && <Check className="size-4 mr-2" />}
-                        </Button>
-                      ))
-                    )}
-                  </div>
-                  {pagination.totalPages > 1 && (
-                    <Pagination>
-                      <PaginationContent className="flex items-center gap-4">
-                        <PaginationItem>
-                          <PaginationPrevious
-                            onClick={
-                              pagination.page > 1
-                                ? () => fetchScenarios(pagination.page - 1)
-                                : () => {}
-                            }
-                            className={cn(pagination.page > 1 && 'cursor-pointer')}
-                            isActive={pagination.page > 1}
-                          />
-                        </PaginationItem>
-                        <span>
-                          {pagination.page} of {pagination.totalPages}
-                        </span>
-                        <PaginationItem>
-                          <PaginationNext
-                            onClick={() =>
-                              pagination.page < pagination.totalPages
-                                ? fetchScenarios(pagination.page + 1)
-                                : () => {}
-                            }
-                            className={cn(
-                              pagination.page < pagination.totalPages && 'cursor-pointer',
-                            )}
-                            isActive={pagination.page < pagination.totalPages}
-                          />
-                        </PaginationItem>
-                      </PaginationContent>
-                    </Pagination>
-                  )}
-                </DialogContent>
-              </Dialog>
+          <CardContent className="p-3 !bg-white rounded-b-xl h-full overflow-y-scroll overflow-x-hidden">
+            <div className="flex flex-col gap-4 h-full">
+              {items.map((item) => (
+                <ScenarioItem
+                  key={item.id}
+                  scenario={item}
+                  onSelect={handleSelectScenario}
+                  isSelected={scenario?.id === item.id}
+                />
+              ))}
+              {pagination.totalPages > 1 && (
+                <Pagination className="pb-3">
+                  <PaginationContent className="flex items-center gap-4">
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={
+                          pagination.page > 1
+                            ? () => handleFetchScenarios(pagination.page - 1)
+                            : () => {}
+                        }
+                        className={cn(pagination.page > 1 && 'cursor-pointer')}
+                        isActive={pagination.page > 1}
+                      />
+                    </PaginationItem>
+                    <span>
+                      {pagination.page} of {pagination.totalPages}
+                    </span>
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() =>
+                          pagination.page < pagination.totalPages
+                            ? handleFetchScenarios(pagination.page + 1)
+                            : () => {}
+                        }
+                        className={cn(pagination.page < pagination.totalPages && 'cursor-pointer')}
+                        isActive={pagination.page < pagination.totalPages}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
             </div>
           </CardContent>
         </Card>
-        <Card className="w-full p-0 gap-0 flex flex-col flex-1 min-h-0">
+        <Card className="hidden md:flex w-full p-0 gap-0 h-full overflow-hidden md:max-w-[400px]">
           <CardHeader className="w-full !p-4 border-b border-border shrink-0">
-            <CardTitle className="w-full">Scenario Preview</CardTitle>
+            <CardTitle className="w-full">Scenario Overview</CardTitle>
           </CardHeader>
 
-          <CardContent className="flex-1 flex flex-col min-h-0 py-6 !bg-white rounded-b-xl overflow-hidden">
-            {scenario ? (
-              <div className="flex-1 flex flex-col gap-4 min-h-0 max-h-[50vh] overflow-y-auto">
-                <span className="text-lg font-semibold text-center shrink-0">
-                  {scenario.currentVersion.title}
-                </span>
-                <p className="min-w-0 whitespace-pre-wrap">{scenario.currentVersion.description}</p>
+          <CardContent className="px-4 pt-6 !bg-white h-full overflow-scroll">
+            <div className="flex flex-col gap-4 h-full w-full">
+              <div className="flex flex-col gap-2">
+                <span className="text-xl font-semibold">{scenario?.currentVersion.title}</span>
+                <div className="flex flex-row gap-1 items-center">
+                  <span className="text-muted-foreground text-sm">Difficulty:</span>
+                  <Badge className="h-6" variant="default">
+                    {scenario?.currentVersion.difficulty.title}
+                  </Badge>
+                </div>
+                <div className="flex flex-row gap-1 items-center">
+                  <span className="text-muted-foreground text-sm">Caller type:</span>
+                  <span className="text-sm">{scenario?.currentVersion.callerType.title}</span>
+                </div>
+                <div className="flex flex-row gap-1 items-center">
+                  <span className="text-muted-foreground text-sm">Category:</span>
+                  <span className="text-sm">{scenario?.currentVersion.category.title}</span>
+                </div>
+                <div className="flex flex-row gap-1 items-center">
+                  <span className="text-muted-foreground text-sm">Tone:</span>
+                  <span className="text-sm">{scenario?.currentVersion.tone.title}</span>
+                </div>
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-2 text-center py-10 h-full">
-                <BookOpenText strokeWidth={1.5} className="size-15 text-muted-foreground" />
-                <p className="font-medium text-lg text-muted-foreground">
-                  Select a scenario to see what this simulation will be about.
+              <div className="pt-5 pb-3 border-t border-border">
+                <p className="text-sm whitespace-pre-wrap">
+                  {scenario?.currentVersion.description}
                 </p>
               </div>
-            )}
+            </div>
           </CardContent>
-        </Card>
-      </div>
-      <Card className="w-full md:max-w-[400px] p-0 gap-0 flex flex-col min-h-0">
-        <CardHeader className="w-full !p-4 border-b border-border shrink-0">
-          <CardTitle className="w-full">Training Options</CardTitle>
-        </CardHeader>
-
-        <CardContent className="flex flex-col justify-between gap-5 h-full min-h-0 py-6 !bg-white rounded-b-xl">
-          <div className="flex flex-row gap-1">
-            <span className="font-semibold">Difficulty:</span>
-            <p>Set by your trainer</p>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Button disabled={!scenario} onClick={() => setIsChatReady(true)}>
+          <CardFooter className="bg-white border-t border-border !py-3">
+            <Button className="w-full" onClick={() => setIsChatReady(true)}>
               Start Simulation
             </Button>
-            <span className="text-center text-muted-foreground">Select a scenario to start</span>
+          </CardFooter>
+        </Card>
+      </div>
+      {scenario && (
+        <div className="md:hidden absolute bottom-0 w-full p-4 bg-white border-t border-border">
+          <Button className="w-full" onClick={() => setIsChatReady(true)}>
+            Start Simulation
+          </Button>
+        </div>
+      )}
+    </div>
+  ) : (
+    <div className="flex justify-center items-center h-full w-full">
+      <LucideRefreshCw className="animate-spin size-8 text-muted-foreground"/>
+    </div>
+  );
+}
+
+function ScenarioItem({
+  scenario,
+  onSelect,
+  isSelected,
+}: {
+  scenario: IUserScenario;
+  onSelect: (scenario: IUserScenario) => void;
+  isSelected: boolean;
+}) {
+  const [isShowMore, setIsShowMore] = useState<boolean>(false);
+  const {
+    currentVersion: { title, category, difficulty, callerType, tone, description },
+  } = scenario;
+
+  return (
+    <div className={cn('p-3 rounded-lg border border-border w-full', isSelected && 'bg-blue-50')}>
+      <div className="flex flex-col md:flex-row gap-3 justify-between">
+        <div className="flex flex-col gap-2">
+          <span className="text-lg font-semibold">{title}</span>
+          <div className="flex flex-col gap-1">
+            <div className="flex flex-row gap-1 items-center">
+              <span className="text-muted-foreground text-sm">Difficulty:</span>
+              <Badge className="h-6" variant="default">
+                {difficulty.title}
+              </Badge>
+            </div>
+            <div className="flex flex-row gap-1 items-center">
+              <span className="text-muted-foreground text-sm">Caller type:</span>
+              <span className="text-sm">{callerType.title}</span>
+            </div>
+            <div className="flex flex-row gap-1 items-center">
+              <span className="text-muted-foreground text-sm">Category:</span>
+              <span className="text-sm">{category.title}</span>
+            </div>
+            {isShowMore && (
+              <>
+                <div className="flex flex-row gap-1 items-center">
+                  <span className="text-muted-foreground text-sm">Tone:</span>
+                  <span className="text-sm">{tone.title}</span>
+                </div>
+                <div className="flex flex-row gap-1">
+                  <p className="text-sm whitespace-pre-wrap">
+                    <span className="text-muted-foreground">Description: </span>
+                    {description}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="w-full md:w-fit flex flex-row gap-2 items-center">
+          <Button
+            className="md:hidden w-full flex-1"
+            variant="outline"
+            onClick={() => setIsShowMore((prev) => !prev)}
+          >
+            {isShowMore ? (
+              <>
+                <ChevronUp />
+                Show Less
+              </>
+            ) : (
+              <>
+                <ChevronDown />
+                Show More
+              </>
+            )}
+          </Button>
+          <Button
+            className="w-full md:w-fit flex-1"
+            disabled={isSelected}
+            variant="outline"
+            onClick={() => onSelect(scenario)}
+          >
+            {isSelected ? (
+              <>
+                <Check />
+                Selected
+              </>
+            ) : (
+              'Select'
+            )}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

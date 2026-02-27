@@ -9,17 +9,21 @@ export default function TrainerPageClient() {
   const [selectedScenario, setSelectedScenario] = useState<IUserScenario | null>(null);
   const [isChatReady, setIsChatReady] = useState<boolean>(false);
 
-  return isChatReady && selectedScenario ? (
-    <ChatAi
-      scenarioId={selectedScenario.id}
-      scenarioTitle={selectedScenario.currentVersion.title}
-      setIsChatReady={setIsChatReady}
-    />
-  ) : (
-    <ScenarioSelection
-      scenario={selectedScenario}
-      setScenario={setSelectedScenario}
-      setIsChatReady={setIsChatReady}
-    />
-  );
+  return (
+    <div className="h-[calc(100vh-100px)]">
+      {isChatReady && selectedScenario ? (
+        <ChatAi
+          scenarioId={selectedScenario.id}
+          scenarioTitle={selectedScenario.currentVersion.title}
+          setIsChatReady={setIsChatReady}
+        />
+      ) : (
+        <ScenarioSelection
+          scenario={selectedScenario}
+          setScenario={setSelectedScenario}
+          setIsChatReady={setIsChatReady}
+        />
+      )}
+    </div>
+  )
 }
