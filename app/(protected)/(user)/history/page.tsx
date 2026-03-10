@@ -1,3 +1,5 @@
+import History from '@/components/pages/history';
+
 export default function HistoryPage() {
-  return <div>History</div>;
+  return <History />;
 }

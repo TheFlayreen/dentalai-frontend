@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Cookies from 'js-cookie';
+import { apiClient } from '@/lib/api-client';
+import { IChatSession } from '@/types/chat-sessions/chat-session.type';
 
 const BACKEND_URL: string = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
@@ -104,11 +106,17 @@ export function useChatSocket({
     }
   }, []);
 
+  const evaluateSession = useCallback(async (sessionId: string): Promise<IChatSession> => {
+    const data: IChatSession = await apiClient.get('chat/sessions/results/' + sessionId);
+    return data;
+  }, [])
+
   return {
     connected,
     streamingContent,
     joinSession,
     sendMessage,
     disconnect,
+    evaluateSession
   };
 }
