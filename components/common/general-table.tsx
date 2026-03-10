@@ -11,7 +11,6 @@ import {
 } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -61,6 +60,7 @@ type DataTableProps<T> = {
   pagination: IPagination;
   onClickPagination: (page: number) => Promise<void>;
   renderRow?: (row: T) => React.ReactNode;
+  onRowClick?: (row: T) => void;
   isLoading?: boolean;
 };
 
@@ -71,6 +71,7 @@ export function DataTable<T>({
   renderRow,
   pagination,
   onClickPagination,
+  onRowClick,
   isLoading = false,
 }: DataTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -79,6 +80,8 @@ export function DataTable<T>({
     data,
     columns,
     state: { sorting },
+    enableRowSelection: true,
+    enableMultiRowSelection: false,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -87,9 +90,9 @@ export function DataTable<T>({
   const rows = table.getRowModel().rows;
 
   return (
-    <div className="w-full space-y-4">
-      <div className={cn('rounded-md border overflow-hidden flex flex-col', className)}>
-        <div className="overflow-auto flex-1 min-h-0">
+    <div className="w-full">
+      <div className={cn('rounded-md border overflow-hidden flex flex-col w-full', className)}>
+        <div className="overflow-auto min-h-0">
           <Table className="overflow-x-scroll">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -158,7 +161,16 @@ export function DataTable<T>({
                       {renderRow(row.original)}
                     </TableRow>
                   ) : (
-                    <TableRow key={row.id} className="h-fit">
+                    <TableRow
+                      key={row.id}
+                      className={cn(
+                        'h-fit',
+                        onRowClick && 'cursor-pointer hover:bg-muted/50',
+                      )}
+                      onClick={() => {
+                        onRowClick?.(row.original);
+                      }}
+                    >
                       {row.getVisibleCells().map((cell) => {
                         const cellMeta = cell.column.columnDef.meta as
                           | DataTableColumnMeta

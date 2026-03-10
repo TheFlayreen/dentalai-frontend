@@ -7,6 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ChatMessage, ChatSession, useChatSocket } from '@/hooks/use-chat-socket';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { VisuallyHidden } from '@/components/ui/visually-hidden';
+import { IChatSession } from '@/types/chat-sessions/chat-session.type';
+import SessionEvaluation from '@/components/modules/session-evaluation';
 
 interface ChatAiProps {
   scenarioId: string;
@@ -59,10 +63,13 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
   const [inputText, setInputText] = useState('');
   const [session, setSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoadingEvaluation, setIsLoadingEvaluation] = useState<boolean>(false);
+  const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
+  const [sessionEvaluation, setSessionEvaluation] = useState<IChatSession | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const { connected, streamingContent, joinSession, sendMessage, disconnect } = useChatSocket({
+  const { connected, streamingContent, joinSession, sendMessage, disconnect, evaluateSession } = useChatSocket({
     onJoined: (s) => {
       setSession(s);
       setMessages(s.messages ?? []);
@@ -99,9 +106,18 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
     }
   };
 
-  function finishSimulation() {
-    disconnect();
-    setIsChatReady(false);
+  async function evaluateSimulation() {
+    setIsLoadingEvaluation(true);
+    setIsOpenDialog(true)
+    try {
+      disconnect();
+      const data: IChatSession = await evaluateSession(session?.id || '');
+      setSessionEvaluation(data)
+    } catch (error) {
+      console.error('Error finishing simulation:', error);
+    } finally {
+      setIsLoadingEvaluation(false);
+    }
   }
 
   useEffect(() => {
@@ -137,7 +153,7 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
               variant="danger"
               size="sm"
               className="w-full sm:w-auto shrink-0"
-              onClick={finishSimulation}
+              onClick={evaluateSimulation}
             >
               End Simulation
             </Button>
@@ -196,6 +212,31 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
           </div>
         </CardFooter>
       </Card>
+      <Dialog open={isOpenDialog} onOpenChange={() => {
+        if (!isLoadingEvaluation) {
+          setIsOpenDialog(false);
+          setSessionEvaluation(null);
+          setIsChatReady(false);
+        }
+      }}>
+        <DialogContent className="max-h-[90vh] max-w-[500px] w-full overflow-y-scroll p-4">
+          <VisuallyHidden>
+            <DialogTitle>
+              Evaluation in progress, please wait...
+            </DialogTitle>
+          </VisuallyHidden>
+          {isLoadingEvaluation && sessionEvaluation !== null ? (
+            <div className="w-full h-[200px] flex flex-col gap-2 items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <span>Evaluating...</span>
+            </div>
+          ) : null}
+
+          {sessionEvaluation !== null ? (
+            <SessionEvaluation session={sessionEvaluation}/>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
