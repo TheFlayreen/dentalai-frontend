@@ -6,29 +6,21 @@ import { useUserChatSessionStore } from '@/store/user-chat-sessions.store';
 import { format } from 'date-fns';
 import { ColumnDef } from '@tanstack/react-table';
 import { getDurationTime } from '@/lib/utils';
-import { IChatSession } from '@/types/chat-sessions/chat-session.type';
 import SessionEvaluation from '@/components/modules/session-evaluation';
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 export default function History() {
   const { items, pagination, isLoading, getAllSessions } = useUserChatSessionStore();
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
-  const activeRow: IChatSession | undefined = useMemo(() => {
-    return items.find((item) => item.id === activeRowId);
-  }, [activeRowId]);
-  console.log('activeRow', activeRow);
   const formatedItems = useMemo(
     () =>
       items.map((item) => ({
         id: item.id,
-        title: item.scenarioVersion.title,
-        difficulty: item.scenarioVersion.difficulty.title,
-        score: item.evaluation?.payload?.scores?.performance_score || 'N/A',
-        duration: getDurationTime(
-          item.messages[0].createdAt,
-          item.messages[item.messages.length - 1].createdAt,
-        ),
+        title: item.title,
+        difficulty: item.difficulty.title,
+        score: item.performance_score || 'N/A',
+        duration: getDurationTime(item.duration),
         date: format(item.createdAt, 'EEE MMM dd yyyy'),
       })),
     [items],
@@ -58,6 +50,7 @@ export default function History() {
   );
 
   const handleRowClick = (row: any) => {
+    if (row.score === 'N/A') return;
     setActiveRowId(row.id as string);
   };
 
@@ -82,23 +75,19 @@ export default function History() {
         isLoading={isLoading}
         onRowClick={handleRowClick}
       />
-      <Sheet open={activeRow !== undefined && activeRow.evaluation !== null} onOpenChange={() => setActiveRowId(null)}>
-        <SheetContent className="sm:max-w-[425px] max-w-[90vw] w-full overflow-y-scroll" side="right">
+      <Dialog open={!!activeRowId} onOpenChange={() => setActiveRowId(null)}>
+        <DialogContent className="h-[90vh] w-[80vw] !max-w-[80vw] overflow-y-scroll p-4">
           <VisuallyHidden>
-            <SheetTitle>Call Details</SheetTitle>
+            <DialogTitle>Call Details</DialogTitle>
           </VisuallyHidden>
-          {activeRow && (
-            <SessionEvaluation session={activeRow} />
+          {activeRowId && (
+            <SessionEvaluation
+              sessionId={activeRowId}
+              duration={items.find((item) => item.id === activeRowId)?.duration || 0}
+            />
           )}
-        </SheetContent>
-      </Sheet>
-      {/*{activeRow && (*/}
-      {/*  <div className="border border-border rounded-lg p-4 max-w-[500px] w-full">*/}
-      {/*    <SessionEvaluation*/}
-      {/*      session={activeRow}*/}
-      {/*    />*/}
-      {/*  </div>*/}
-      {/*)}*/}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

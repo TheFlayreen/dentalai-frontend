@@ -39,10 +39,10 @@ export interface ScenarioEvaluation {
       strengths: string[];
 
       priority_improvements: {
-        trigger_patient_line: string;
+        patient_trigger_line: string;
         correct_answer_to_mimic: string;
         variations: string[];
-        why_it_works: string[];
+        explanation: string;
         micro_drill: string;
       }[];
 
@@ -58,5 +58,17 @@ export interface ScenarioEvaluation {
 
       model_call_example: string[];
     };
+
+    structural_compliance_check: {
+      "name_captured": "present" | "late_or_weak" | "missing",
+      "referral_source_asked": "present" | "late_or_weak" | "missing",
+      "reason_for_calling_identified": "present" | "late_or_weak" | "missing",
+      "insurance_gathered": "present" | "late_or_weak" | "missing",
+      "benefits_check_explained": "present" | "late_or_weak" | "missing",
+      "doctor_edification": "present" | "late_or_weak" | "missing",
+      "practice_value_positioning": "present" | "late_or_weak" | "missing",
+      "two_option_close": "present" | "late_or_weak" | "missing",
+      "demographic_transition": "present" | "late_or_weak" | "missing",
+    }
   }
 }
