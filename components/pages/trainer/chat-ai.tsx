@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
 import { IChatSession } from '@/types/chat-sessions/chat-session.type';
 import SessionEvaluation from '@/components/modules/session-evaluation';
+import { differenceInSeconds } from 'date-fns';
 
 interface ChatAiProps {
   scenarioId: string;
@@ -219,7 +220,7 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
           setIsChatReady(false);
         }
       }}>
-        <DialogContent className="max-h-[90vh] max-w-[500px] w-full overflow-y-scroll p-4">
+        <DialogContent className="h-[90vh] w-[80vw] !max-w-[80vw] overflow-y-scroll p-4">
           <VisuallyHidden>
             <DialogTitle>
               Evaluation in progress, please wait...
@@ -233,7 +234,13 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
           ) : null}
 
           {sessionEvaluation !== null ? (
-            <SessionEvaluation session={sessionEvaluation}/>
+            <SessionEvaluation
+              sessionId={sessionEvaluation.id}
+              duration={differenceInSeconds(
+                new Date(messages[messages.length - 1].createdAt),
+                new Date(messages[0].createdAt),
+              )}
+            />
           ) : null}
         </DialogContent>
       </Dialog>
