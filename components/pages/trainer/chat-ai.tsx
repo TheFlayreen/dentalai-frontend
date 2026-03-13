@@ -19,21 +19,10 @@ interface ChatAiProps {
   setIsChatReady: (isChatReady: boolean) => void;
 }
 
-function MessageBubble({
-  message,
-  isStreaming,
-}: {
-  message: ChatMessage;
-  isStreaming?: boolean;
-}) {
+function MessageBubble({ message, isStreaming }: { message: ChatMessage; isStreaming?: boolean }) {
   const isUser = message.role === 'user';
   return (
-    <div
-      className={cn(
-        'flex gap-3 w-full max-w-[85%]',
-        isUser && 'ml-auto flex-row-reverse'
-      )}
-    >
+    <div className={cn('flex gap-3 w-full max-w-[85%]', isUser && 'ml-auto flex-row-reverse')}>
       {!isUser && (
         <Avatar className="size-8 shrink-0 rounded-full bg-muted">
           <AvatarFallback className="rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
@@ -46,7 +35,7 @@ function MessageBubble({
           'rounded-2xl px-4 py-2.5 text-sm shadow-sm',
           isUser
             ? 'bg-blue-600 text-white rounded-br-md'
-            : 'bg-muted/80 text-foreground rounded-bl-md border border-border/50'
+            : 'bg-muted/80 text-foreground rounded-bl-md border border-border/50',
         )}
       >
         <p className="whitespace-pre-wrap wrap-break-word">
@@ -70,16 +59,17 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const { connected, streamingContent, joinSession, sendMessage, disconnect, evaluateSession } = useChatSocket({
-    onJoined: (s) => {
-      setSession(s);
-      setMessages(s.messages ?? []);
-    },
-    onReply: (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    },
-    onError: (msg) => alert(msg),
-  });
+  const { connected, streamingContent, joinSession, sendMessage, disconnect, evaluateSession } =
+    useChatSocket({
+      onJoined: (s) => {
+        setSession(s);
+        setMessages(s.messages ?? []);
+      },
+      onReply: (msg) => {
+        setMessages((prev) => [...prev, msg]);
+      },
+      onError: (msg) => alert(msg),
+    });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -92,10 +82,7 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
   const handleSend = () => {
     const text = inputText.trim();
     if (!text) return;
-    setMessages((prev) => [
-      ...prev,
-      { id: '', role: 'user', content: text, createdAt: '' },
-    ]);
+    setMessages((prev) => [...prev, { id: '', role: 'user', content: text, createdAt: '' }]);
     sendMessage(text);
     setInputText('');
   };
@@ -109,11 +96,11 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
 
   async function evaluateSimulation() {
     setIsLoadingEvaluation(true);
-    setIsOpenDialog(true)
+    setIsOpenDialog(true);
     try {
       disconnect();
       const data: IChatSession = await evaluateSession(session?.id || '');
-      setSessionEvaluation(data)
+      setSessionEvaluation(data);
     } catch (error) {
       console.error('Error finishing simulation:', error);
     } finally {
@@ -146,9 +133,7 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
                 Disconnected
               </span>
             ) : (
-              <span className="text-xs text-muted-foreground shrink-0">
-                Connecting…
-              </span>
+              <span className="text-xs text-muted-foreground shrink-0">Connecting…</span>
             )}
             <Button
               variant="danger"
@@ -169,7 +154,9 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
           >
             {messages.length === 0 && !streamingContent && (
               <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center text-muted-foreground">
-                <p className="text-sm">Start the conversation. The AI will respond with streaming (chunks).</p>
+                <p className="text-sm">
+                  Start the conversation. The AI will respond with streaming (chunks).
+                </p>
               </div>
             )}
             {messages.map((m) => (
@@ -213,21 +200,23 @@ export default function ChatAi({ scenarioId, scenarioTitle, setIsChatReady }: Ch
           </div>
         </CardFooter>
       </Card>
-      <Dialog open={isOpenDialog} onOpenChange={() => {
-        if (!isLoadingEvaluation) {
-          setIsOpenDialog(false);
-          setSessionEvaluation(null);
-          setIsChatReady(false);
-        }
-      }}>
+
+      <Dialog
+        open={isOpenDialog}
+        onOpenChange={() => {
+          if (!isLoadingEvaluation) {
+            setIsOpenDialog(false);
+            setSessionEvaluation(null);
+            setIsChatReady(false);
+          }
+        }}
+      >
         <DialogContent className="h-[90vh] w-[80vw] !max-w-[80vw] overflow-y-scroll p-4">
           <VisuallyHidden>
-            <DialogTitle>
-              Evaluation in progress, please wait...
-            </DialogTitle>
+            <DialogTitle>Evaluation in progress, please wait...</DialogTitle>
           </VisuallyHidden>
-          {isLoadingEvaluation && sessionEvaluation !== null ? (
-            <div className="w-full h-[200px] flex flex-col gap-2 items-center justify-center">
+          {isLoadingEvaluation ? (
+            <div className="w-full h-full flex flex-col gap-2 items-center justify-center">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               <span>Evaluating...</span>
             </div>
