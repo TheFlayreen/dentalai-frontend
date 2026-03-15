@@ -358,69 +358,6 @@ export default function SessionEvaluation({ sessionId, className, duration }: IS
               </div>
             </CardContent>
           </Card>
-          <Card className="w-full p-0 gap-0">
-            <CardHeader className="w-full !p-4 border-b border-border">
-              <CardTitle className="w-full">Rule Checks</CardTitle>
-            </CardHeader>
-            <CardContent className="p-3 !bg-white rounded-b-xl h-fit">
-              <div className="flex flex-col gap-3">
-                {evaluation?.payload.rule_checks.required_phrases.length > 0 && (
-                  <div>
-                    <span className="text-xs font-medium text-muted-foreground block mb-1">
-                      Required phrases
-                    </span>
-                    <ul className="text-sm list-disc list-inside space-y-0.5">
-                      {evaluation?.payload.rule_checks.required_phrases.map((p, i) => (
-                        <li key={i}>{p}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {evaluation?.payload.rule_checks.forbidden_phrases.length > 0 && (
-                  <div>
-                    <span className="text-xs font-medium text-muted-foreground block mb-1">
-                      Forbidden phrases
-                    </span>
-                    <ul className="text-sm list-disc list-inside space-y-0.5 text-destructive/90">
-                      {evaluation?.payload.rule_checks.forbidden_phrases.map((p, i) => (
-                        <li key={i}>{p}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {evaluation?.payload.rule_checks.must_ask_questions.length > 0 && (
-                  <div>
-                    <span className="text-xs font-medium text-muted-foreground block mb-1">
-                      Must ask questions
-                    </span>
-                    <ul className="text-sm list-disc list-inside space-y-0.5">
-                      {evaluation?.payload.rule_checks.must_ask_questions.map((q, i) => (
-                        <li key={i}>{q}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {evaluation?.payload.rule_checks.compliance_violations.length > 0 && (
-                  <div>
-                    <span className="text-xs font-medium text-muted-foreground block mb-1">
-                      Compliance violations
-                    </span>
-                    <ul className="text-sm list-disc list-inside space-y-0.5 text-destructive/90">
-                      {evaluation?.payload.rule_checks.compliance_violations.map((v, i) => (
-                        <li key={i}>{v}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {evaluation?.payload.rule_checks.required_phrases.length === 0 &&
-                  evaluation?.payload.rule_checks.forbidden_phrases.length === 0 &&
-                  evaluation?.payload.rule_checks.must_ask_questions.length === 0 &&
-                  evaluation?.payload.rule_checks.compliance_violations.length === 0 && (
-                    <p className="text-sm text-muted-foreground">No rule check data.</p>
-                  )}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
         <TabsContent value="coaching" className="flex flex-col gap-4">
           <Card className="w-full p-0 gap-0">
