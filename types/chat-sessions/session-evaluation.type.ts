@@ -6,13 +6,6 @@ export interface ScenarioEvaluation {
     auto_fail: boolean;
     auto_fail_reasons: string[];
 
-    rule_checks: {
-      required_phrases: string[];
-      forbidden_phrases: string[];
-      must_ask_questions: string[];
-      compliance_violations: string[];
-    };
-
     scores: {
       performance_score: number;
       support_level_label: string;
