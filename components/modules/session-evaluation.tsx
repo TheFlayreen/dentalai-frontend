@@ -12,7 +12,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useUserChatSessionStore } from '@/store/user-chat-sessions.store';
+import { useChatSessionStore } from '@/store/chat-sessions.store';
 import { IChatSession } from '@/types/chat-sessions/chat-session.type';
 import { ScenarioEvaluation } from '@/types/chat-sessions/session-evaluation.type';
 import { ChatMessage } from '@/hooks/use-chat-socket';
@@ -48,7 +48,7 @@ function ScoreBar({ value, max = 5 }: { value: number; max?: number }) {
 
 export default function SessionEvaluation({ sessionId, className, duration }: ISessionEvaluation) {
   const [evaluation, setEvaluation] = useState<ScenarioEvaluation | null>(null);
-  const { getSession, isLoading, currentSession, getSessionMessages } = useUserChatSessionStore();
+  const { getSession, isLoading, currentSession, getSessionMessages } = useChatSessionStore();
   const [activeTab, setActiveTab] = useState<Tab>(Tab.OVERVIEW);
   const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);

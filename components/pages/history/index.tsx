@@ -2,7 +2,7 @@
 
 import { DataTable } from '@/components/common/general-table';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useUserChatSessionStore } from '@/store/user-chat-sessions.store';
+import { useChatSessionStore } from '@/store/chat-sessions.store';
 import { format } from 'date-fns';
 import { ColumnDef } from '@tanstack/react-table';
 import { getDurationTime } from '@/lib/utils';
@@ -11,7 +11,7 @@ import { VisuallyHidden } from '@/components/ui/visually-hidden';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 export default function History() {
-  const { items, pagination, isLoading, getAllSessions } = useUserChatSessionStore();
+  const { items, pagination, isLoading, getAllSessions } = useChatSessionStore();
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
   const formatedItems = useMemo(
     () =>

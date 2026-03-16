@@ -2,6 +2,7 @@ import { IUserScenarioVersion } from '@/types/scenario/scenario.type';
 import { IPagination } from '@/types/pagination.type';
 import { ScenarioEvaluation } from '@/types/chat-sessions/session-evaluation.type';
 import { IDifficulty } from '@/types/difficulties/difficulty.type';
+import { IBaseUser } from '@/types/users/user.type';
 
 export interface IChatSession {
   id: string;
@@ -16,7 +17,7 @@ export interface IChatSession {
 export interface IChatSessionShort {
   id: string;
   scenarioId: string;
-  userId: string;
+  user: IBaseUser;
   performance_score?: number;
   duration: number;
   difficulty: IDifficulty;
