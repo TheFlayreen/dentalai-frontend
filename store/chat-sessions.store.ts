@@ -8,18 +8,18 @@ import {
 } from '@/types/chat-sessions/chat-session.type';
 import { ChatMessage } from '@/hooks/use-chat-socket';
 
-interface UserChatSessionStore {
+interface ChatSessionStore {
   items: IChatSessionShort[];
   pagination: IPagination;
   isLoading: boolean;
   currentSession: IChatSession | null;
   getSession: (sessionId: string) => Promise<IChatSession | null>;
   getSessionMessages: (sessionId: string) => Promise<ChatMessage[]>;
-  getAllSessions: (page?: number, limit?: number) => Promise<IChatSessionShort[]>;
+  getAllSessions: (page?: number, limit?: number, traineeId?: string) => Promise<IChatSessionShort[]>;
   evaluateSession: () => Promise<void>;
 }
 
-export const useUserChatSessionStore = create<UserChatSessionStore>((set, get) => ({
+export const useChatSessionStore = create<ChatSessionStore>((set, get) => ({
   items: [],
   pagination: {
     page: 1,
@@ -28,10 +28,12 @@ export const useUserChatSessionStore = create<UserChatSessionStore>((set, get) =
   },
   isLoading: false,
   currentSession: null,
-  async getAllSessions(page: number = 1, limit: number = 10): Promise<IChatSessionShort[]> {
+  async getAllSessions(page: number = 1, limit: number = 10, traineeId?: string): Promise<IChatSessionShort[]> {
     set({ isLoading: true });
     try {
       let query: string = `?page=${page}&limit=${limit}`;
+      if (traineeId) query += `&traineeId=${traineeId}`;
+
       const data: IChatSessionWithPagination = await apiClient.get('/chat/sessions/all' + query,);
       set({ items: data.items, pagination: data.pagination });
       return data.items;
