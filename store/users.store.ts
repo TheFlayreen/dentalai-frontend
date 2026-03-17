@@ -1,11 +1,13 @@
 import { create } from 'zustand/react';
 import { apiClient } from '@/lib/api-client';
 import { IBaseUser } from '@/types/users/user.type';
+import { IProfileStatistic } from '@/types/users/profile-statistic.type';
 
 interface UsersStore {
   users: IBaseUser[];
   isLoading: boolean;
   getUsers: (role?: 'ADMIN' | 'TRAINEE') => Promise<IBaseUser[]>;
+  getProfileStats: () => Promise<IProfileStatistic | null>;
 }
 
 export const useUsersStore = create<UsersStore>((set) => ({
@@ -29,4 +31,16 @@ export const useUsersStore = create<UsersStore>((set) => ({
       set({ isLoading: false });
     }
   },
+  async getProfileStats(): Promise<IProfileStatistic | null> {
+    try {
+      const data: IProfileStatistic =  await apiClient.get('/users/me/statistics');
+
+      if (!data) return null;
+
+      return data;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
 }));

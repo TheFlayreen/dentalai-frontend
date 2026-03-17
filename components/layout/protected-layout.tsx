@@ -18,7 +18,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
     async function fetchUser() {
       try {
-        const data = await apiClient.get<IUser>('/auth/me');
+        const data = await apiClient.get<IUser>('/users/me');
         if (!cancelled) {
           setUser(data);
         }

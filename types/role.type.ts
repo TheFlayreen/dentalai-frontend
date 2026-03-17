@@ -1,5 +1,5 @@
 export interface IRole {
   id: string;
-  tile: string;
+  title: string;
   code: 'TRAINEE' | 'ADMIN';
 }
