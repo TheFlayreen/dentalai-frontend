@@ -1,3 +1,5 @@
+import Analytics from '@/components/pages/analytics';
+
 export default function AnalyticsPage() {
-  return <div>Analytics</div>;
+  return <Analytics/>;
 }
