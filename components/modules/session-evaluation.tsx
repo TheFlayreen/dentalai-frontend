@@ -537,7 +537,7 @@ export default function SessionEvaluation({ sessionId, className, duration }: IS
                         key={i}
                         className={cn(
                           'max-w-[85%] rounded-lg p-2 text-sm',
-                          i % 2 === 0
+                          i % 2 !== 0
                             ? 'self-end bg-primary/15'
                             : 'self-start border border-primary/20',
                         )}
